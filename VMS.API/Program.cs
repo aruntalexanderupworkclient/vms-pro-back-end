@@ -1,0 +1,97 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using VMS.API.Extensions;
+using VMS.API.Middleware;
+using VMS.Infrastructure.Data;
+using VMS.Infrastructure.InMemory;
+using VMS.Infrastructure.Repositories.InMemory;
+using VMS.Infrastructure.Repositories.Interfaces;
+using VMS.Infrastructure.Repositories.PostgreSQL;
+
+var builder = WebApplication.CreateBuilder(args);
+
+
+// Add controllers
+builder.Services.AddControllers();
+
+// Infrastructure - switch between InMemory and PostgreSQL
+var useInMemory = builder.Configuration.GetValue<bool>("UseInMemory");
+
+if (useInMemory)
+{
+    builder.Services.AddSingleton<InMemoryDataStore>();
+    builder.Services.AddScoped(typeof(IRepository<>), typeof(InMemoryRepository<>));
+}
+else
+{
+    builder.Services.AddDbContext<VmsDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddScoped(typeof(IRepository<>), typeof(PostgreSqlRepository<>));
+}
+
+// Application services, AutoMapper, FluentValidation
+builder.Services.AddApplicationServices();
+builder.Services.AddAutoMapperProfiles();
+builder.Services.AddFluentValidators();
+
+// Authentication & Authorization
+//builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!))
+        };
+    });
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("VmsPolicy", policy =>
+        policy.WithOrigins("http://localhost:4300")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+
+builder.Services.AddAuthorization();
+
+// Swagger
+builder.Services.AddSwaggerDocumentation();
+
+// CORS
+builder.Services.AddCorsPolicy(builder.Configuration);
+
+var app = builder.Build();
+
+// Exception middleware
+app.UseMiddleware<ExceptionMiddleware>();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "VMS Pro API v1"));
+}
+
+app.UseCors("VmsPolicy");
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
+    await next();
+});
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
