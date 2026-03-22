@@ -40,11 +40,15 @@ public class AuthController : ControllerBase
 
             var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
 
-            // 2. payload contains verified user info
-            // Here you can: find/create user in your DB, assign roles, etc.
+            // 2. Verify the logged-in user has entry in Database
+            var userDbModel = await _userService.GetByEmailAsync(payload.Email);
+            if (userDbModel == null)
+            {
+                return Unauthorized("User not found or not authorized.");
+            }
 
-            // 3. Issue your own app JWT
-            var token = GenerateJwt(payload.Email, payload.Name, payload.Subject);
+            // 3. Issue your own app JWT with user details
+            var token = GenerateJwt(userDbModel, payload.Subject);
 
             return Ok(new { token });
         }
@@ -54,17 +58,19 @@ public class AuthController : ControllerBase
         }
     }
 
-    private string GenerateJwt(string email, string name, string googleId)
+    private string GenerateJwt(UserDto user, string googleId)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Name, name),
-            new Claim("google_id", googleId),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Role, user.RoleName ?? "Viewer"),
+            new Claim("organisationId", user.OrganisationId?.ToString() ?? string.Empty)
         };
 
         var token = new JwtSecurityToken(
@@ -77,7 +83,6 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 
 
     [HttpPost("login")]
@@ -112,7 +117,9 @@ public class AuthController : ControllerBase
     {
         var user = await _userService.GetByEmailAsync("admin@vms.com");
         if (user == null)
-            return NotFound(ApiResponse<LoginResponseDto>.FailResponse("Demo user not found. Ensure InMemory mode with seed data."));
+            return NotFound(
+                ApiResponse<LoginResponseDto>.FailResponse(
+                    "Demo user not found. Ensure InMemory mode with seed data."));
 
         var token = GenerateJwtToken(user);
         var response = new LoginResponseDto
@@ -123,7 +130,8 @@ public class AuthController : ControllerBase
             User = user
         };
 
-        return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, "Demo login successful. Do not use in production."));
+        return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response,
+            "Demo login successful. Do not use in production."));
     }
 
     [HttpPost("sso-callback")]
@@ -131,7 +139,8 @@ public class AuthController : ControllerBase
     public ActionResult<ApiResponse<LoginResponseDto>> SsoCallback([FromBody] SsoCallbackDto dto)
     {
         _logger.LogInformation("SSO callback received with code: {Code}", dto.Code);
-        return Ok(ApiResponse<LoginResponseDto>.FailResponse("SSO integration requires external IdP configuration. Configure SsoSettings in appsettings.json."));
+        return Ok(ApiResponse<LoginResponseDto>.FailResponse(
+            "SSO integration requires external IdP configuration. Configure SsoSettings in appsettings.json."));
     }
 
     [HttpPost("refresh")]
@@ -188,7 +197,6 @@ public class AuthController : ControllerBase
         return int.TryParse(value, out var minutes) ? minutes : 60;
     }
 }
-
 
 public class GoogleLoginRequest
 {

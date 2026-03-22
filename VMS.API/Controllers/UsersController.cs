@@ -8,7 +8,7 @@ namespace VMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _service;
@@ -34,17 +34,18 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.SuccessResponse(result));
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [HttpPost("Create")]
+    //[Authorize(Roles = "Admin")]
     public async Task<ActionResult<ApiResponse<UserDto>>> Create([FromBody] CreateUserDto dto)
     {
         var result = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, ApiResponse<UserDto>.SuccessResponse(result, "User created."));
+        return CreatedAtAction(nameof(GetById), new { id = result.Id },
+            ApiResponse<UserDto>.SuccessResponse(result, "User created."));
     }
 
-    [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponse<UserDto>>> Update(Guid id, [FromBody] UpdateUserDto dto)
+    [HttpPut("Update")]
+    //[Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> Update([FromQuery] Guid id, [FromBody] UpdateUserDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
         if (result == null)
@@ -52,9 +53,9 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<UserDto>.SuccessResponse(result, "User updated."));
     }
 
-    [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
+    [HttpDelete("Delete")]
+    // [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] Guid id)
     {
         var success = await _service.DeleteAsync(id);
         if (!success)

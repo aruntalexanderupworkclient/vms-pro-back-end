@@ -3,72 +3,119 @@ using VMS.Application.DTOs;
 using VMS.Application.DTOs.Common;
 using VMS.Application.Interfaces;
 using VMS.Domain.Entities;
-using VMS.Infrastructure.Repositories.Interfaces;
+using VMS.Infrastructure.Repositories.Specifications.Users;
+using VMS.Infrastructure.Repositories.UnitOfWork;
 
 namespace VMS.Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly IRepository<User> _repository;
+    private readonly IUnitOfWorkFactory _unitOfWorkFactory;
     private readonly IMapper _mapper;
 
-    public UserService(IRepository<User> repository, IMapper mapper)
+    public UserService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
     {
-        _repository = repository;
-        _mapper = mapper;
+        _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
+    // ✅ GetPagedAsync with includes - uses Specification
     public async Task<PagedResult<UserDto>> GetAllAsync(PaginationParams pagination)
     {
-        var items = await _repository.GetPagedAsync(pagination.Page, pagination.PageSize, pagination.Search);
-        var count = await _repository.GetCountAsync(pagination.Search);
-        return new PagedResult<UserDto>
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
-            Items = _mapper.Map<IEnumerable<UserDto>>(items),
-            TotalCount = count,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize
-        };
+            var spec = new GetUsersPagedSpecification(pagination.Page, pagination.PageSize, pagination.Search);
+            var items = await uow.Users.GetBySpecificationAsync(spec);
+            var count = await uow.Users.GetCountAsync(pagination.Search);
+            
+            return new PagedResult<UserDto>
+            {
+                Items = _mapper.Map<IEnumerable<UserDto>>(items),
+                TotalCount = count,
+                Page = pagination.Page,
+                PageSize = pagination.PageSize
+            };
+        }
     }
 
+    // ✅ GetByIdAsync with includes - uses Specification
     public async Task<UserDto?> GetByIdAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        return entity == null ? null : _mapper.Map<UserDto>(entity);
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            var spec = new GetUserByIdSpecification(id);
+            var entity = await uow.Users.GetByIdWithSpecificationAsync(id, spec);
+            return entity == null ? null : _mapper.Map<UserDto>(entity);
+        }
     }
 
+    // ✅ GetByEmailAsync with includes - uses Specification
+    public async Task<UserDto?> GetByEmailAsync(string email)
+    {
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            var spec = new FindUserSpecification(email);
+            var users = await uow.Users.GetBySpecificationAsync(spec);
+            var user = users.FirstOrDefault();
+            return user == null ? null : _mapper.Map<UserDto>(user);
+        }
+    }
+
+    // ✅ CRUD methods - Now with UoW for atomic transactions
     public async Task<UserDto> CreateAsync(CreateUserDto dto)
     {
-        var entity = _mapper.Map<User>(dto);
-        entity.PasswordHash = BCryptHash(dto.Password);
-        var created = await _repository.AddAsync(entity);
-        return _mapper.Map<UserDto>(created);
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            return await uow.ExecuteTransactionAsync(async () =>
+            {
+                try
+                {
+                    var entity = _mapper.Map<User>(dto);
+                    entity.PasswordHash = BCryptHash(dto.Password);
+                    var created = await uow.Users.AddAsync(entity);
+                    await uow.SaveChangesAsync();
+                    return _mapper.Map<UserDto>(created);
+                }
+                catch (Exception ex)
+                {
+                    throw new ApplicationException("An error occurred while creating the user.", ex);
+                }
+            });
+        }
     }
 
     public async Task<UserDto?> UpdateAsync(Guid id, UpdateUserDto dto)
     {
-        var existing = await _repository.GetByIdAsync(id);
-        if (existing == null) return null;
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            return await uow.ExecuteTransactionAsync(async () =>
+            {
+                var existing = await uow.Users.GetByIdAsync(id);
+                if (existing == null) return null;
 
-        _mapper.Map(dto, existing);
-        var updated = await _repository.UpdateAsync(existing);
-        return _mapper.Map<UserDto>(updated);
+                _mapper.Map(dto, existing);
+                var updated = await uow.Users.UpdateAsync(existing);
+                await uow.SaveChangesAsync();
+                return _mapper.Map<UserDto>(updated);
+            });
+        }
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var existing = await _repository.GetByIdAsync(id);
-        if (existing == null) return false;
-        await _repository.DeleteAsync(id);
-        return true;
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            return await uow.ExecuteTransactionAsync(async () =>
+            {
+                var existing = await uow.Users.GetByIdAsync(id);
+                if (existing == null) return false;
+                await uow.Users.DeleteAsync(id);
+                await uow.SaveChangesAsync();
+                return true;
+            });
+        }
     }
 
-    public async Task<UserDto?> GetByEmailAsync(string email)
-    {
-        var users = await _repository.FindAsync(u => u.Email.ToLower() == email.ToLower());
-        var user = users.FirstOrDefault();
-        return user == null ? null : _mapper.Map<UserDto>(user);
-    }
 
     private static string BCryptHash(string password)
     {

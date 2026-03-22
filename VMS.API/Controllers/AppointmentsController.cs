@@ -8,7 +8,7 @@ namespace VMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 public class AppointmentsController : ControllerBase
 {
     private readonly IAppointmentService _service;

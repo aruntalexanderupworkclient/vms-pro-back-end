@@ -8,7 +8,7 @@ namespace VMS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 public class HostsController : ControllerBase
 {
     private readonly IHostService _service;

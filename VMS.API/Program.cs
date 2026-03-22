@@ -19,6 +19,11 @@ builder.Services.AddControllers();
 // Infrastructure - switch between InMemory and PostgreSQL
 var useInMemory = builder.Configuration.GetValue<bool>("UseInMemory");
 
+// Always register DbContext for EF Core migrations
+builder.Services.AddDbContext<VmsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register repositories based on configuration
 if (useInMemory)
 {
     builder.Services.AddSingleton<InMemoryDataStore>();
@@ -26,8 +31,6 @@ if (useInMemory)
 }
 else
 {
-    builder.Services.AddDbContext<VmsDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
     builder.Services.AddScoped(typeof(IRepository<>), typeof(PostgreSqlRepository<>));
 }
 

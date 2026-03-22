@@ -3,62 +3,92 @@ using VMS.Application.DTOs;
 using VMS.Application.DTOs.Common;
 using VMS.Application.Interfaces;
 using VMS.Domain.Entities;
-using VMS.Infrastructure.Repositories.Interfaces;
+using VMS.Infrastructure.Repositories.Specifications.Appointments;
+using VMS.Infrastructure.Repositories.UnitOfWork;
 
 namespace VMS.Application.Services;
 
 public class AppointmentService : IAppointmentService
 {
-    private readonly IRepository<Appointment> _repository;
+    private readonly IUnitOfWorkFactory _unitOfWorkFactory;
     private readonly IMapper _mapper;
 
-    public AppointmentService(IRepository<Appointment> repository, IMapper mapper)
+    public AppointmentService(IUnitOfWorkFactory unitOfWorkFactory, IMapper mapper)
     {
-        _repository = repository;
-        _mapper = mapper;
+        _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<PagedResult<AppointmentDto>> GetAllAsync(PaginationParams pagination)
     {
-        var items = await _repository.GetPagedAsync(pagination.Page, pagination.PageSize, pagination.Search);
-        var count = await _repository.GetCountAsync(pagination.Search);
-        return new PagedResult<AppointmentDto>
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
-            Items = _mapper.Map<IEnumerable<AppointmentDto>>(items),
-            TotalCount = count,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize
-        };
+            var spec = new GetAppointmentsPagedSpecification(pagination.Page, pagination.PageSize, pagination.Search);
+            var items = await uow.Appointments.GetBySpecificationAsync(spec);
+            var count = await uow.Appointments.GetCountAsync(pagination.Search);
+            return new PagedResult<AppointmentDto>
+            {
+                Items = _mapper.Map<IEnumerable<AppointmentDto>>(items),
+                TotalCount = count,
+                Page = pagination.Page,
+                PageSize = pagination.PageSize
+            };
+        }
     }
 
     public async Task<AppointmentDto?> GetByIdAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        return entity == null ? null : _mapper.Map<AppointmentDto>(entity);
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            var spec = new GetAppointmentByIdSpecification(id);
+            var entity = await uow.Appointments.GetByIdWithSpecificationAsync(id, spec);
+            return entity == null ? null : _mapper.Map<AppointmentDto>(entity);
+        }
     }
 
     public async Task<AppointmentDto> CreateAsync(CreateAppointmentDto dto)
     {
-        var entity = _mapper.Map<Appointment>(dto);
-        var created = await _repository.AddAsync(entity);
-        return _mapper.Map<AppointmentDto>(created);
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            return await uow.ExecuteTransactionAsync(async () =>
+            {
+                var entity = _mapper.Map<Appointment>(dto);
+                var created = await uow.Appointments.AddAsync(entity);
+                await uow.SaveChangesAsync();
+                return _mapper.Map<AppointmentDto>(created);
+            });
+        }
     }
 
     public async Task<AppointmentDto?> UpdateAsync(Guid id, UpdateAppointmentDto dto)
     {
-        var existing = await _repository.GetByIdAsync(id);
-        if (existing == null) return null;
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            return await uow.ExecuteTransactionAsync(async () =>
+            {
+                var existing = await uow.Appointments.GetByIdAsync(id);
+                if (existing == null) return null;
 
-        _mapper.Map(dto, existing);
-        var updated = await _repository.UpdateAsync(existing);
-        return _mapper.Map<AppointmentDto>(updated);
+                _mapper.Map(dto, existing);
+                var updated = await uow.Appointments.UpdateAsync(existing);
+                await uow.SaveChangesAsync();
+                return _mapper.Map<AppointmentDto>(updated);
+            });
+        }
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var existing = await _repository.GetByIdAsync(id);
-        if (existing == null) return false;
-        await _repository.DeleteAsync(id);
-        return true;
+        using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
+        {
+            return await uow.ExecuteTransactionAsync(async () =>
+            {
+                var existing = await uow.Appointments.GetByIdAsync(id);
+                if (existing == null) return false;
+                await uow.Appointments.DeleteAsync(id);
+                await uow.SaveChangesAsync();
+                return true;
+            });
+        }
     }
 }

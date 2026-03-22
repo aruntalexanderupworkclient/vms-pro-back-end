@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using VMS.Domain.Entities;
 using VMS.Infrastructure.Data;
 using VMS.Infrastructure.Repositories.Interfaces;
+using VMS.Infrastructure.Repositories.Specifications;
 
 namespace VMS.Infrastructure.Repositories.PostgreSQL;
 
@@ -16,6 +17,52 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
         _context = context;
         _dbSet = context.Set<T>();
     }
+
+    // ✅ NEW: Specification-based retrieval with includes
+    public async Task<IEnumerable<T>> GetBySpecificationAsync(Specification<T> spec)
+    {
+        var query = ApplySpecification(spec);
+        return await query.ToListAsync();
+    }
+
+    // ✅ NEW: Get single by ID with specification
+    public async Task<T?> GetByIdWithSpecificationAsync(Guid id, Specification<T> spec)
+    {
+        spec.Criteria = e => e.Id == id;
+        var query = ApplySpecification(spec);
+        return await query.FirstOrDefaultAsync();
+    }
+
+    // ✅ HELPER: Apply specification to query
+    private IQueryable<T> ApplySpecification(Specification<T> spec)
+    {
+        var query = _dbSet.AsQueryable();
+
+        // Apply includes
+        foreach (var include in spec.Includes)
+            query = query.Include(include);
+
+        // Apply criteria
+        if (spec.Criteria != null)
+            query = query.Where(spec.Criteria);
+
+        // Apply ordering
+        if (spec.OrderBy != null)
+            query = query.OrderBy(spec.OrderBy);
+
+        if (spec.OrderByDescending != null)
+            query = query.OrderByDescending(spec.OrderByDescending);
+
+        // Apply paging
+        if (spec.IsPagingEnabled)
+        {
+            query = query.Skip(spec.Skip).Take(spec.Take);
+        }
+
+        return query;
+    }
+
+    // =========== STANDARD METHODS (No includes) ===========
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
@@ -67,6 +114,8 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
         return await _dbSet.Where(predicate).ToListAsync();
     }
 
+    // =========== CRUD (No includes needed) ===========
+
     public async Task<T> AddAsync(T entity)
     {
         entity.CreatedAt = DateTime.UtcNow;
@@ -94,3 +143,5 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
         }
     }
 }
+
+

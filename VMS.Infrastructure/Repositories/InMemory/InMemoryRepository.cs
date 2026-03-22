@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using VMS.Domain.Entities;
 using VMS.Infrastructure.Repositories.Interfaces;
+using VMS.Infrastructure.Repositories.Specifications;
 
 namespace VMS.Infrastructure.Repositories.InMemory;
 
@@ -12,6 +13,48 @@ public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
     {
         _store = store;
     }
+
+    // ✅ NEW: Specification-based retrieval (includes don't matter in-memory, all data is loaded)
+    public Task<IEnumerable<T>> GetBySpecificationAsync(Specification<T> spec)
+    {
+        var collection = _store.GetCollection<T>();
+        var query = collection.Values.Where(e => !e.IsDeleted).AsQueryable();
+
+        if (spec.Criteria != null)
+            query = query.Where(spec.Criteria);
+
+        // Apply ordering
+        if (spec.OrderBy != null)
+            query = query.OrderBy(spec.OrderBy);
+
+        if (spec.OrderByDescending != null)
+            query = query.OrderByDescending(spec.OrderByDescending);
+
+        // Apply paging
+        if (spec.IsPagingEnabled)
+        {
+            query = query.Skip(spec.Skip).Take(spec.Take);
+        }
+
+        var result = query.AsEnumerable();
+        return Task.FromResult(result);
+    }
+
+    // ✅ NEW: Get single by ID with specification
+    public Task<T?> GetByIdWithSpecificationAsync(Guid id, Specification<T> spec)
+    {
+        spec.Criteria = e => e.Id == id;
+        var collection = _store.GetCollection<T>();
+        var result = collection.Values
+            .Where(e => !e.IsDeleted)
+            .AsQueryable()
+            .Where(spec.Criteria)
+            .FirstOrDefault();
+
+        return Task.FromResult(result);
+    }
+
+    // =========== STANDARD METHODS ===========
 
     public Task<IEnumerable<T>> GetAllAsync()
     {
@@ -76,6 +119,8 @@ public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
         return Task.FromResult(result);
     }
 
+    // =========== CRUD ===========
+
     public Task<T> AddAsync(T entity)
     {
         entity.CreatedAt = DateTime.UtcNow;
@@ -118,3 +163,5 @@ public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
         return false;
     }
 }
+
+
