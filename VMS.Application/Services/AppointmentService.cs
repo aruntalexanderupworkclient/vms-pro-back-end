@@ -52,10 +52,19 @@ public class AppointmentService : IAppointmentService
         {
             return await uow.ExecuteTransactionAsync(async () =>
             {
-                var entity = _mapper.Map<Appointment>(dto);
-                var created = await uow.Appointments.AddAsync(entity);
-                await uow.SaveChangesAsync();
-                return _mapper.Map<AppointmentDto>(created);
+                try
+                {
+                    var entity = _mapper.Map<Appointment>(dto);
+                    var created = await uow.Appointments.AddAsync(entity);
+                    await uow.SaveChangesAsync();
+                    return _mapper.Map<AppointmentDto>(created);
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception (you can use a logging framework like Serilog, NLog, etc.)
+                    Console.Error.WriteLine($"Error creating appointment: {ex.Message}");
+                    throw; // Rethrow to ensure transaction is rolled back
+                }
             });
         }
     }

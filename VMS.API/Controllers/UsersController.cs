@@ -25,8 +25,8 @@ public class UsersController : ControllerBase
         return Ok(ApiResponse<PagedResult<UserDto>>.SuccessResponse(result));
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<UserDto>>> GetById(Guid id)
+    [HttpGet("GetById")]
+    public async Task<ActionResult<ApiResponse<UserDto>>> GetById([FromQuery] Guid id)
     {
         var result = await _service.GetByIdAsync(id);
         if (result == null)

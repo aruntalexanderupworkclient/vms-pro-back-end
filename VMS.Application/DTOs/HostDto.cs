@@ -9,7 +9,13 @@ public class HostDto
     public string Unit { get; set; } = string.Empty;
     public string Contact { get; set; } = string.Empty;
     public string OrgType { get; set; } = string.Empty;
+    // Enum metadata for frontend MDM display
+    public int OrgTypeId { get; set; }
+    public string OrgTypeLabel { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    // Enum metadata for frontend MDM display
+    public int StatusId { get; set; }
+    public string StatusLabel { get; set; } = string.Empty;
 }
 
 public class CreateHostDto

@@ -19,14 +19,15 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<ApiResponse<PagedResult<EmployeeDto>>>> GetAll([FromQuery] PaginationParams pagination)
+    public async Task<ActionResult<ApiResponse<PagedResult<EmployeeDto>>>> GetAll(
+        [FromQuery] PaginationParams pagination)
     {
         var result = await _service.GetAllAsync(pagination);
         return Ok(ApiResponse<PagedResult<EmployeeDto>>.SuccessResponse(result));
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<EmployeeDto>>> GetById(Guid id)
+    [HttpGet("GetById")]
+    public async Task<ActionResult<ApiResponse<EmployeeDto>>> GetById([FromQuery] Guid id)
     {
         var result = await _service.GetByIdAsync(id);
         if (result == null)
@@ -35,16 +36,18 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpPost("Create")]
-    [Authorize(Roles = "Admin,Manager")]
+    // [Authorize(Roles = "Admin,Manager")]
     public async Task<ActionResult<ApiResponse<EmployeeDto>>> Create([FromBody] CreateEmployeeDto dto)
     {
         var result = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, ApiResponse<EmployeeDto>.SuccessResponse(result, "Employee created."));
+        return CreatedAtAction(nameof(GetById), new { id = result.Id },
+            ApiResponse<EmployeeDto>.SuccessResponse(result, "Employee created."));
     }
 
-    [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<ApiResponse<EmployeeDto>>> Update(Guid id, [FromBody] UpdateEmployeeDto dto)
+    [HttpPut("Update")]
+    // [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<ApiResponse<EmployeeDto>>> Update([FromQuery] Guid id,
+        [FromBody] UpdateEmployeeDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
         if (result == null)
@@ -52,9 +55,9 @@ public class EmployeesController : ControllerBase
         return Ok(ApiResponse<EmployeeDto>.SuccessResponse(result, "Employee updated."));
     }
 
-    [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
+    [HttpDelete("Delete")]
+    // [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] Guid id)
     {
         var success = await _service.DeleteAsync(id);
         if (!success)

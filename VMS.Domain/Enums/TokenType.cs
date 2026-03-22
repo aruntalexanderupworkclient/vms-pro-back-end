@@ -6,5 +6,6 @@ public enum TokenType
     Contractor = 1,
     Delivery = 2,
     Temporary = 3,
-    VIP = 4
+    VIP = 4,
+    Guest=5
 }

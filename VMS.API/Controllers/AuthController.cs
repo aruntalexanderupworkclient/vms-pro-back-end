@@ -50,7 +50,7 @@ public class AuthController : ControllerBase
             // 3. Issue your own app JWT with user details
             var token = GenerateJwt(userDbModel, payload.Subject);
 
-            return Ok(new { token });
+            return Ok(new { token=token,user=userDbModel });
         }
         catch (InvalidJwtException)
         {

@@ -26,8 +26,8 @@ public class VisitorsController : ControllerBase
         return Ok(ApiResponse<PagedResult<VisitorDto>>.SuccessResponse(result));
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<VisitorDto>>> GetById(Guid id)
+    [HttpGet("GetById")]
+    public async Task<ActionResult<ApiResponse<VisitorDto>>> GetById([FromQuery] Guid id)
     {
         var result = await _service.GetByIdAsync(id);
         if (result == null)
@@ -35,17 +35,17 @@ public class VisitorsController : ControllerBase
         return Ok(ApiResponse<VisitorDto>.SuccessResponse(result));
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin,Manager,Receptionist")]
+    [HttpPost("Create")]
+    // [Authorize(Roles = "Admin,Manager,Receptionist")]
     public async Task<ActionResult<ApiResponse<VisitorDto>>> Create([FromBody] CreateVisitorDto dto)
     {
         var result = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, ApiResponse<VisitorDto>.SuccessResponse(result, "Visitor created."));
     }
 
-    [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin,Manager,Receptionist")]
-    public async Task<ActionResult<ApiResponse<VisitorDto>>> Update(Guid id, [FromBody] UpdateVisitorDto dto)
+    [HttpPut("Update")]
+    // [Authorize(Roles = "Admin,Manager,Receptionist")]
+    public async Task<ActionResult<ApiResponse<VisitorDto>>> Update([FromQuery] Guid id, [FromBody] UpdateVisitorDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
         if (result == null)
@@ -53,9 +53,9 @@ public class VisitorsController : ControllerBase
         return Ok(ApiResponse<VisitorDto>.SuccessResponse(result, "Visitor updated."));
     }
 
-    [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
+    [HttpDelete("Delete")]
+    // [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] Guid id)
     {
         var success = await _service.DeleteAsync(id);
         if (!success)

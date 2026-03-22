@@ -25,8 +25,8 @@ public class TokensController : ControllerBase
         return Ok(ApiResponse<PagedResult<TokenDto>>.SuccessResponse(result));
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponse<TokenDto>>> GetById(Guid id)
+    [HttpGet("GetById")]
+    public async Task<ActionResult<ApiResponse<TokenDto>>> GetById([FromQuery] Guid id)
     {
         var result = await _service.GetByIdAsync(id);
         if (result == null)
@@ -34,17 +34,17 @@ public class TokensController : ControllerBase
         return Ok(ApiResponse<TokenDto>.SuccessResponse(result));
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin,Manager,Receptionist")]
+    [HttpPost("Create")]
+    // [Authorize(Roles = "Admin,Manager,Receptionist")]
     public async Task<ActionResult<ApiResponse<TokenDto>>> Create([FromBody] CreateTokenDto dto)
     {
         var result = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, ApiResponse<TokenDto>.SuccessResponse(result, "Token created."));
     }
 
-    [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin,Manager,Receptionist")]
-    public async Task<ActionResult<ApiResponse<TokenDto>>> Update(Guid id, [FromBody] UpdateTokenDto dto)
+    [HttpPut("Update")]
+    // [Authorize(Roles = "Admin,Manager,Receptionist")]
+    public async Task<ActionResult<ApiResponse<TokenDto>>> Update([FromQuery] Guid id, [FromBody] UpdateTokenDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
         if (result == null)
@@ -52,9 +52,9 @@ public class TokensController : ControllerBase
         return Ok(ApiResponse<TokenDto>.SuccessResponse(result, "Token updated."));
     }
 
-    [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<ApiResponse<object>>> Delete(Guid id)
+    [HttpDelete("Delete")]
+    // [Authorize(Roles = "Admin,Manager")]
+    public async Task<ActionResult<ApiResponse<object>>> Delete([FromQuery] Guid id)
     {
         var success = await _service.DeleteAsync(id);
         if (!success)

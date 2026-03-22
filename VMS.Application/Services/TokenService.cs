@@ -53,7 +53,6 @@ public class TokenService : ITokenService
             return await uow.ExecuteTransactionAsync(async () =>
             {
                 var entity = _mapper.Map<VisitorToken>(dto);
-                entity.IssuedAt = DateTime.UtcNow;
                 var created = await uow.Tokens.AddAsync(entity);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<TokenDto>(created);

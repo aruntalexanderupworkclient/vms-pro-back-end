@@ -48,6 +48,7 @@ public class HostService : IHostService
 
     public async Task<HostDto> CreateAsync(CreateHostDto dto)
     {
+        var entity1 = _mapper.Map<Host>(dto);
         using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
             return await uow.ExecuteTransactionAsync(async () =>

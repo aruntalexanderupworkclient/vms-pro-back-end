@@ -10,6 +10,9 @@ public class EmployeeDto
     public string Designation { get; set; } = string.Empty;
     public string EmployeeId { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
+    // Enum metadata for frontend MDM display
+    public int StatusId { get; set; }
+    public string StatusLabel { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
 }

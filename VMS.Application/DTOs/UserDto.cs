@@ -11,6 +11,9 @@ public class UserDto
     public Guid RoleId { get; set; }
     public string? RoleName { get; set; }
     public UserStatus Status { get; set; }
+    // Enum metadata for frontend MDM display
+    public int StatusId { get; set; }
+    public string StatusLabel { get; set; } = string.Empty;
     public Guid? OrganisationId { get; set; }
     public string? OrganisationName { get; set; }
     public DateTime CreatedAt { get; set; }
