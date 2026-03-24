@@ -70,8 +70,8 @@ builder.Services.AddCors(options =>
                 "https://ashy-pebble-0441d4500.6.azurestaticapps.net"
             )
             .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowAnyMethod();
+            //.AllowCredentials();
     });
 });
 
