@@ -21,7 +21,11 @@ var useInMemory = builder.Configuration.GetValue<bool>("UseInMemory");
 
 // Always register DbContext for EF Core migrations
 builder.Services.AddDbContext<VmsDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+    o =>
+    {
+        o.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+    }));
 
 // Register repositories based on configuration
 if (useInMemory)
