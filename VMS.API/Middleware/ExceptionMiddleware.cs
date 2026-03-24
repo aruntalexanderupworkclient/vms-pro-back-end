@@ -33,9 +33,17 @@ public class ExceptionMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
+        var errors = new List<string>
+        {
+            exception.Message,
+            exception.InnerException?.Message,
+            exception.InnerException?.InnerException?.Message
+        };
+
         var response = ApiResponse<object>.FailResponse(
             "An internal server error occurred.",
-            new List<string> { exception.Message });
+            errors.Where(e => !string.IsNullOrEmpty(e)).ToList()
+        );
 
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var json = JsonSerializer.Serialize(response, options);
