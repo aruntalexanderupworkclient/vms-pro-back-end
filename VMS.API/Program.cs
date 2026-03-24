@@ -95,6 +95,7 @@ else
     app.UseSwaggerUI();
 }
 
+/*
 using (var scope = app.Services.CreateScope())
 {
     try
@@ -108,7 +109,7 @@ using (var scope = app.Services.CreateScope())
         throw; // optional (remove if you don’t want crash)
     }
 }
-
+*/
 
 app.UseCors("VmsPolicy");
 app.Use(async (context, next) =>
