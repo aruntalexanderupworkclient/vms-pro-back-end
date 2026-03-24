@@ -95,6 +95,21 @@ else
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<VmsDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Migration failed: " + ex.Message);
+        throw; // optional (remove if you don’t want crash)
+    }
+}
+
+
 app.UseCors("VmsPolicy");
 app.Use(async (context, next) =>
 {
