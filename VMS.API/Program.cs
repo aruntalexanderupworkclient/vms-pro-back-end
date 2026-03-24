@@ -64,9 +64,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("VmsPolicy", policy =>
-        policy.WithOrigins("http://localhost:4300", "https://ashy-pebble-0441d4500.6.azurestaticapps.net")
-              .AllowAnyHeader()
-              .AllowAnyMethod());
+    {
+        policy.WithOrigins(
+                "http://localhost:4300",
+                "https://ashy-pebble-0441d4500.6.azurestaticapps.net"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 
@@ -76,7 +82,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddSwaggerDocumentation();
 
 // CORS
-builder.Services.AddCorsPolicy(builder.Configuration);
+// builder.Services.AddCorsPolicy(builder.Configuration);
 
 var app = builder.Build();
 
