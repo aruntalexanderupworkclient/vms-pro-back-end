@@ -60,7 +60,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("VmsPolicy", policy =>
-        policy.WithOrigins("http://localhost:4300")
+        policy.WithOrigins("http://localhost:4300", "https://ashy-pebble-0441d4500.6.azurestaticapps.net")
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
