@@ -24,7 +24,7 @@ builder.Services.AddDbContext<VmsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
     o =>
     {
-        o.EnableRetryOnFailure(5, TimeSpan.FromSeconds(5), null);
+        o.EnableRetryOnFailure(0);
     }));
 
 // Register repositories based on configuration
