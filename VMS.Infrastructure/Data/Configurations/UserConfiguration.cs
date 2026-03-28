@@ -18,6 +18,27 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId);
         builder.HasOne(u => u.Organisation).WithMany(o => o.Users).HasForeignKey(u => u.OrganisationId);
+        
+        // 🆕 AUDIT TRACKING FOREIGN KEYS
+        // CreatedBy: Nullable FK - allows bootstrap without error, but enforces FK when populated
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(u => u.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);  // Nullable FK
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(u => u.UpdatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(u => u.DeletedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
         builder.HasQueryFilter(u => !u.IsDeleted);
     }
 }

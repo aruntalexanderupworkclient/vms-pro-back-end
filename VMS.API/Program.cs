@@ -66,8 +66,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("VmsPolicy", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:4300",
-                "https://ashy-pebble-0441d4500.6.azurestaticapps.net"
+                "http://localhost:4300"
+                // "https://ashy-pebble-0441d4500.6.azurestaticapps.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -101,12 +101,13 @@ else
     app.UseSwaggerUI();
 }
 
-/*
+
 using (var scope = app.Services.CreateScope())
 {
     try
     {
         var db = scope.ServiceProvider.GetRequiredService<VmsDbContext>();
+        var dbTest = db.Database.CanConnect();
         db.Database.Migrate();
     }
     catch (Exception ex)
@@ -115,7 +116,7 @@ using (var scope = app.Services.CreateScope())
         throw; // optional (remove if you don’t want crash)
     }
 }
-*/
+
 
 app.UseCors("VmsPolicy");
 app.Use(async (context, next) =>

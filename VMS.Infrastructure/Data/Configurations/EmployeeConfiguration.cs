@@ -18,6 +18,26 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.Property(e => e.Phone).HasMaxLength(20);
         builder.Property(e => e.Email).HasMaxLength(256);
         builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(20);
+        
+        // 🆕 AUDIT TRACKING FOREIGN KEYS
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(e => e.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(e => e.UpdatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(e => e.DeletedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
         builder.HasQueryFilter(e => !e.IsDeleted);
     }
 }

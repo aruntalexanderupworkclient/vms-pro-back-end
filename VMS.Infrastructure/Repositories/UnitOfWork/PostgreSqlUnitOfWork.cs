@@ -25,20 +25,20 @@ public class PostgreSqlUnitOfWork : IUnitOfWork
 
     private bool _disposed = false;
 
-    public PostgreSqlUnitOfWork(VmsDbContext context)
+    public PostgreSqlUnitOfWork(VmsDbContext context, Guid? currentUserId = null)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
 
         // Lazy-load repositories to avoid unnecessary instantiation
-        _userRepository = new Lazy<IRepository<User>>(() => new PostgreSqlRepository<User>(_context));
-        _roleRepository = new Lazy<IRepository<Role>>(() => new PostgreSqlRepository<Role>(_context));
-        _permissionRepository = new Lazy<IRepository<Permission>>(() => new PostgreSqlRepository<Permission>(_context));
-        _visitorRepository = new Lazy<IRepository<Visitor>>(() => new PostgreSqlRepository<Visitor>(_context));
-        _tokenRepository = new Lazy<IRepository<VisitorToken>>(() => new PostgreSqlRepository<VisitorToken>(_context));
-        _hostRepository = new Lazy<IRepository<Host>>(() => new PostgreSqlRepository<Host>(_context));
-        _appointmentRepository = new Lazy<IRepository<Appointment>>(() => new PostgreSqlRepository<Appointment>(_context));
-        _employeeRepository = new Lazy<IRepository<Employee>>(() => new PostgreSqlRepository<Employee>(_context));
-        _organisationRepository = new Lazy<IRepository<Organisation>>(() => new PostgreSqlRepository<Organisation>(_context));
+        _userRepository = new Lazy<IRepository<User>>(() => new PostgreSqlRepository<User>(_context, currentUserId));
+        _roleRepository = new Lazy<IRepository<Role>>(() => new PostgreSqlRepository<Role>(_context, currentUserId));
+        _permissionRepository = new Lazy<IRepository<Permission>>(() => new PostgreSqlRepository<Permission>(_context, currentUserId));
+        _visitorRepository = new Lazy<IRepository<Visitor>>(() => new PostgreSqlRepository<Visitor>(_context, currentUserId));
+        _tokenRepository = new Lazy<IRepository<VisitorToken>>(() => new PostgreSqlRepository<VisitorToken>(_context, currentUserId));
+        _hostRepository = new Lazy<IRepository<Host>>(() => new PostgreSqlRepository<Host>(_context, currentUserId));
+        _appointmentRepository = new Lazy<IRepository<Appointment>>(() => new PostgreSqlRepository<Appointment>(_context, currentUserId));
+        _employeeRepository = new Lazy<IRepository<Employee>>(() => new PostgreSqlRepository<Employee>(_context, currentUserId));
+        _organisationRepository = new Lazy<IRepository<Organisation>>(() => new PostgreSqlRepository<Organisation>(_context, currentUserId));
     }
 
     // Repository properties

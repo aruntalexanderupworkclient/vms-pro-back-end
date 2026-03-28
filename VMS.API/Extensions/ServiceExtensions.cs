@@ -9,6 +9,7 @@ using VMS.Application.Interfaces;
 using VMS.Application.Mappings;
 using VMS.Application.Services;
 using VMS.Application.Validators;
+using VMS.Domain.Entities;
 using VMS.Infrastructure.Repositories.UnitOfWork;
 
 namespace VMS.API.Extensions;
@@ -18,10 +19,11 @@ public static class ServiceExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         // ✅ NEW: Register Unit of Work Factory
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserProvider, HttpCurrentUserProvider>();
         services.AddScoped<IUnitOfWorkFactory, PostgreSqlUnitOfWorkFactory>();
 
         // ✅ Register User Context for accessing logged-in user details in services
-        services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
 
         services.AddScoped<IUserService, UserService>();

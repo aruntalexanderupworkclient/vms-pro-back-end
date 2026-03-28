@@ -15,6 +15,26 @@ public class VisitorTokenConfiguration : IEntityTypeConfiguration<VisitorToken>
         builder.Property(t => t.TokenType).HasConversion<string>().HasMaxLength(20);
         builder.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(t => t.Visitor).WithMany(v => v.Tokens).HasForeignKey(t => t.VisitorId);
+        
+        // 🆕 AUDIT TRACKING FOREIGN KEYS
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(t => t.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(t => t.UpdatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(t => t.DeletedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
         builder.HasQueryFilter(t => !t.IsDeleted);
     }
 }

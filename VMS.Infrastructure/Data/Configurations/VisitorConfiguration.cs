@@ -18,6 +18,26 @@ public class VisitorConfiguration : IEntityTypeConfiguration<Visitor>
         builder.Property(v => v.Purpose).HasMaxLength(500);
         builder.Property(v => v.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(v => v.Host).WithMany(h => h.Visitors).HasForeignKey(v => v.HostId);
+        
+        // 🆕 AUDIT TRACKING FOREIGN KEYS
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(v => v.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(v => v.UpdatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(v => v.DeletedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
         builder.HasQueryFilter(v => !v.IsDeleted);
     }
 }

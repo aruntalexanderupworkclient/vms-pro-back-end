@@ -15,6 +15,26 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
         builder.Property(a => a.Notes).HasMaxLength(1000);
         builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(a => a.Host).WithMany(h => h.Appointments).HasForeignKey(a => a.HostId);
+        
+        // 🆕 AUDIT TRACKING FOREIGN KEYS
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(a => a.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(a => a.UpdatedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(a => a.DeletedBy)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
         builder.HasQueryFilter(a => !a.IsDeleted);
     }
 }

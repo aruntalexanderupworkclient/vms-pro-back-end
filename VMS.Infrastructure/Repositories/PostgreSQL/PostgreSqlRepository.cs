@@ -11,11 +11,13 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
 {
     private readonly VmsDbContext _context;
     private readonly DbSet<T> _dbSet;
+    private readonly Guid? _currentUserId;  // Instance field for current user context
 
-    public PostgreSqlRepository(VmsDbContext context)
+    public PostgreSqlRepository(VmsDbContext context, Guid? currentUserId = null)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
         _dbSet = context.Set<T>();
+        _currentUserId = currentUserId;
     }
 
     // ✅ NEW: Specification-based retrieval with includes
@@ -119,6 +121,7 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
     public async Task<T> AddAsync(T entity)
     {
         entity.CreatedAt = DateTime.UtcNow;
+        entity.CreatedBy = _currentUserId;  // Set from current user (null if no user logged in)
         await _dbSet.AddAsync(entity);
         await _context.SaveChangesAsync();
         return entity;
@@ -127,6 +130,7 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
     public async Task<T> UpdateAsync(T entity)
     {
         entity.UpdatedAt = DateTime.UtcNow;
+        entity.UpdatedBy = _currentUserId;  // Set from current user (null if no user logged in)
         _context.Entry(entity).State = EntityState.Modified;
         await _context.SaveChangesAsync();
         return entity;
@@ -139,6 +143,8 @@ public class PostgreSqlRepository<T> : IRepository<T> where T : BaseEntity
         {
             entity.IsDeleted = true;
             entity.UpdatedAt = DateTime.UtcNow;
+            entity.DeletedAt = DateTime.UtcNow;
+            entity.DeletedBy = _currentUserId;  // Set from current user (null if no user logged in)
             await _context.SaveChangesAsync();
         }
     }
