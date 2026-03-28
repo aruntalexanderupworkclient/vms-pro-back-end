@@ -67,7 +67,7 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                 "http://localhost:4300"
-                // "https://ashy-pebble-0441d4500.6.azurestaticapps.net"
+                , "https://ashy-pebble-0441d4500.6.azurestaticapps.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();
