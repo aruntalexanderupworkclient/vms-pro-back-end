@@ -1,5 +1,3 @@
-using VMS.Domain.Enums;
-
 namespace VMS.Application.DTOs;
 
 public class HostDto
@@ -9,13 +7,9 @@ public class HostDto
     public string Unit { get; set; } = string.Empty;
     public string Contact { get; set; } = string.Empty;
     public string OrgType { get; set; } = string.Empty;
-    // Enum metadata for frontend MDM display
-    public int OrgTypeId { get; set; }
+    public Guid OrgTypeId { get; set; }
     public string OrgTypeLabel { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
-    // Enum metadata for frontend MDM display
-    public int StatusId { get; set; }
-    public string StatusLabel { get; set; } = string.Empty;
+    public bool Status { get; set; }
 }
 
 public class CreateHostDto
@@ -24,6 +18,8 @@ public class CreateHostDto
     public string Unit { get; set; } = string.Empty;
     public string Contact { get; set; } = string.Empty;
     public string OrgType { get; set; } = string.Empty;
+    
+    public bool Status { get; set; } = true;
 }
 
 public class UpdateHostDto
@@ -32,5 +28,5 @@ public class UpdateHostDto
     public string Unit { get; set; } = string.Empty;
     public string Contact { get; set; } = string.Empty;
     public string OrgType { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;
+    public bool Status { get; set; }
 }

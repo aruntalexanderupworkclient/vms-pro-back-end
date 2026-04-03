@@ -12,6 +12,8 @@ public class GetAllTokensSpecification : Specification<VisitorToken>
     {
         Includes.Add("Visitor");
         Includes.Add("Visitor.Host");
+        Includes.Add("TokenType");
+        Includes.Add("Status");
         OrderByDescending = t => t.CreatedAt;
     }
 }
@@ -25,6 +27,8 @@ public class GetTokensPagedSpecification : Specification<VisitorToken>
     {
         Includes.Add("Visitor");
         Includes.Add("Visitor.Host");
+        Includes.Add("TokenType");
+        Includes.Add("Status");
 
         if (!string.IsNullOrEmpty(search))
             Criteria = t => t.TokenNumber.Contains(search);
@@ -45,7 +49,8 @@ public class GetTokenByIdSpecification : Specification<VisitorToken>
     {
         Includes.Add("Visitor");
         Includes.Add("Visitor.Host");
+        Includes.Add("TokenType");
+        Includes.Add("Status");
         Criteria = t => t.Id == id;
     }
 }
-

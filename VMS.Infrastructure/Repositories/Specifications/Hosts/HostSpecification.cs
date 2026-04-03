@@ -12,6 +12,7 @@ public class GetAllHostsSpecification : Specification<Host>
     {
         Includes.Add("Visitors");
         Includes.Add("Appointments");
+        Includes.Add("OrganisationType");
         OrderByDescending = h => h.CreatedAt;
     }
 }
@@ -25,6 +26,7 @@ public class GetHostsPagedSpecification : Specification<Host>
     {
         Includes.Add("Visitors");
         Includes.Add("Appointments");
+        Includes.Add("OrganisationType");
 
         if (!string.IsNullOrEmpty(search))
             Criteria = h => h.Name.Contains(search);
@@ -45,7 +47,7 @@ public class GetHostByIdSpecification : Specification<Host>
     {
         Includes.Add("Visitors");
         Includes.Add("Appointments");
+        Includes.Add("OrganisationType");
         Criteria = h => h.Id == id;
     }
 }
-

@@ -21,6 +21,12 @@ public interface IUnitOfWork : IDisposable
     IRepository<Employee> Employees { get; }
     IRepository<Organisation> Organisations { get; }
 
+    // MDM Repositories
+    IRepository<MdmVisitStatus> MdmVisitStatuses { get; }
+    IRepository<MdmUserStatus> MdmUserStatuses { get; }
+    IRepository<MdmTokenType> MdmTokenTypes { get; }
+    IRepository<MdmOrganisationType> MdmOrganisationTypes { get; }
+
     /// <summary>
     /// Begin a new transaction
     /// </summary>
@@ -47,4 +53,3 @@ public interface IUnitOfWork : IDisposable
     /// </summary>
     Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> operation);
 }
-

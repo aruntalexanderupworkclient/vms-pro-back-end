@@ -11,6 +11,7 @@ public class GetAllAppointmentsSpecification : Specification<Appointment>
     public GetAllAppointmentsSpecification()
     {
         Includes.Add("Host");
+        Includes.Add("Status");
         OrderByDescending = a => a.CreatedAt;
     }
 }
@@ -23,6 +24,7 @@ public class GetAppointmentsPagedSpecification : Specification<Appointment>
     public GetAppointmentsPagedSpecification(int page, int pageSize, string? search = null)
     {
         Includes.Add("Host");
+        Includes.Add("Status");
 
         if (!string.IsNullOrEmpty(search))
             Criteria = a => a.VisitorName.Contains(search);
@@ -42,7 +44,7 @@ public class GetAppointmentByIdSpecification : Specification<Appointment>
     public GetAppointmentByIdSpecification(Guid id)
     {
         Includes.Add("Host");
+        Includes.Add("Status");
         Criteria = a => a.Id == id;
     }
 }
-

@@ -3,6 +3,7 @@ using VMS.Application.DTOs;
 using VMS.Application.DTOs.Common;
 using VMS.Application.Interfaces;
 using VMS.Domain.Entities;
+using VMS.Infrastructure.Repositories.Specifications.Employees;
 using VMS.Infrastructure.Repositories.UnitOfWork;
 
 namespace VMS.Application.Services;
@@ -22,7 +23,8 @@ public class EmployeeService : IEmployeeService
     {
         using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
-            var items = await uow.Employees.GetPagedAsync(pagination.Page, pagination.PageSize, pagination.Search);
+            var spec = new GetEmployeesPagedSpecification(pagination.Page, pagination.PageSize, pagination.Search);
+            var items = await uow.Employees.GetBySpecificationAsync(spec);
             var count = await uow.Employees.GetCountAsync(pagination.Search);
             return new PagedResult<EmployeeDto>
             {
@@ -38,7 +40,8 @@ public class EmployeeService : IEmployeeService
     {
         using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
-            var entity = await uow.Employees.GetByIdAsync(id);
+            var spec = new GetEmployeeByIdSpecification(id);
+            var entity = await uow.Employees.GetByIdWithSpecificationAsync(id, spec);
             return entity == null ? null : _mapper.Map<EmployeeDto>(entity);
         }
     }

@@ -191,3 +191,22 @@ public class LoginDtoValidator : AbstractValidator<LoginDto>
         RuleFor(x => x.Password).NotEmpty();
     }
 }
+
+public class CreateMdmDtoValidator : AbstractValidator<CreateMdmDto>
+{
+    public CreateMdmDtoValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Value).NotEmpty().MaximumLength(200);
+    }
+}
+
+public class UpdateMdmDtoValidator : AbstractValidator<UpdateMdmDto>
+{
+    public UpdateMdmDtoValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Value).NotEmpty().MaximumLength(200);
+    }
+}
+

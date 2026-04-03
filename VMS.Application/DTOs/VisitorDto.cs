@@ -15,13 +15,13 @@ public class VisitorDto
     public string? CheckOut { get; set; }
     public string Status { get; set; } = string.Empty;
     // Enum metadata for frontend MDM display
-    public int StatusId { get; set; }
+    public Guid StatusId { get; set; }
     public string StatusLabel { get; set; } = string.Empty;
     public Guid? TokenId { get; set; }
     public string ExpectedDuration { get; set; } = string.Empty;
     public string OrgType { get; set; } = string.Empty;
     // Enum metadata for frontend MDM display
-    public int OrgTypeId { get; set; }
+    public Guid? OrgTypeId { get; set; }
     public string OrgTypeLabel { get; set; } = string.Empty;
 }
 

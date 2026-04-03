@@ -35,6 +35,7 @@ public static class ServiceExtensions
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IHostService, HostService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IMdmService, MdmService>();
 
         return services;
     }

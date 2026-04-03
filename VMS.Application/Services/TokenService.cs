@@ -53,6 +53,10 @@ public class TokenService : ITokenService
             return await uow.ExecuteTransactionAsync(async () =>
             {
                 var entity = _mapper.Map<VisitorToken>(dto);
+                var tokenType = (await uow.MdmTokenTypes.FindAsync(t => t.Code == dto.Type)).FirstOrDefault();
+                if (tokenType != null) entity.TokenTypeId = tokenType.Id;
+                var defaultStatus = (await uow.MdmVisitStatuses.FindAsync(s => s.Code == MdmCodes.VisitStatus.CheckedIn)).First();
+                entity.StatusId = defaultStatus.Id;
                 var created = await uow.Tokens.AddAsync(entity);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<TokenDto>(created);
@@ -70,6 +74,16 @@ public class TokenService : ITokenService
                 if (existing == null) return null;
 
                 _mapper.Map(dto, existing);
+                if (!string.IsNullOrEmpty(dto.Type))
+                {
+                    var tokenType = (await uow.MdmTokenTypes.FindAsync(t => t.Code == dto.Type)).FirstOrDefault();
+                    if (tokenType != null) existing.TokenTypeId = tokenType.Id;
+                }
+                if (!string.IsNullOrEmpty(dto.Status))
+                {
+                    var status = (await uow.MdmVisitStatuses.FindAsync(s => s.Code == dto.Status)).FirstOrDefault();
+                    if (status != null) existing.StatusId = status.Id;
+                }
                 var updated = await uow.Tokens.UpdateAsync(existing);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<TokenDto>(updated);

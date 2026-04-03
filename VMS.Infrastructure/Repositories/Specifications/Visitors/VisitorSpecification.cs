@@ -12,6 +12,8 @@ public class GetAllVisitorsSpecification : Specification<Visitor>
     {
         Includes.Add("Host");
         Includes.Add("Tokens");
+        Includes.Add("Status");
+        Includes.Add("OrgType");
         OrderByDescending = v => v.CreatedAt;
     }
 }
@@ -25,6 +27,8 @@ public class GetVisitorsPagedSpecification : Specification<Visitor>
     {
         Includes.Add("Host");
         Includes.Add("Tokens");
+        Includes.Add("Status");
+        Includes.Add("OrgType");
 
         if (!string.IsNullOrEmpty(search))
             Criteria = v => v.FullName.Contains(search);
@@ -45,7 +49,8 @@ public class GetVisitorByIdSpecification : Specification<Visitor>
     {
         Includes.Add("Host");
         Includes.Add("Tokens");
+        Includes.Add("Status");
+        Includes.Add("OrgType");
         Criteria = v => v.Id == id;
     }
 }
-

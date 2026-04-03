@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using VMS.Infrastructure.Data;
@@ -11,9 +12,11 @@ using VMS.Infrastructure.Data;
 namespace VMS.Infrastructure.Migrations
 {
     [DbContext(typeof(VmsDbContext))]
-    partial class VmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260328090017_MdmMasterDataMigration")]
+    partial class MdmMasterDataMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,11 +136,6 @@ namespace VMS.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -145,6 +143,9 @@ namespace VMS.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -160,6 +161,8 @@ namespace VMS.Infrastructure.Migrations
 
                     b.HasIndex("EmployeeCode")
                         .IsUnique();
+
+                    b.HasIndex("StatusId");
 
                     b.HasIndex("UpdatedBy");
 
@@ -199,11 +202,6 @@ namespace VMS.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -213,6 +211,9 @@ namespace VMS.Infrastructure.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("OrganisationTypeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("StatusId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -228,6 +229,8 @@ namespace VMS.Infrastructure.Migrations
                     b.HasIndex("DeletedBy");
 
                     b.HasIndex("OrganisationTypeId");
+
+                    b.HasIndex("StatusId");
 
                     b.HasIndex("UpdatedBy");
 
@@ -918,10 +921,18 @@ namespace VMS.Infrastructure.Migrations
                         .HasForeignKey("DeletedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("VMS.Domain.Entities.MdmUserStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("VMS.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("VMS.Domain.Entities.Host", b =>
@@ -942,12 +953,20 @@ namespace VMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("VMS.Domain.Entities.MdmUserStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("VMS.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UpdatedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("OrganisationType");
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("VMS.Domain.Entities.MdmOrganisationType", b =>

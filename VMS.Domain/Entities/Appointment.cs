@@ -1,5 +1,3 @@
-using VMS.Domain.Enums;
-
 namespace VMS.Domain.Entities;
 
 public class Appointment : BaseEntity
@@ -10,7 +8,8 @@ public class Appointment : BaseEntity
     public int Duration { get; set; }
     public string Purpose { get; set; } = string.Empty;
     public string? Notes { get; set; }
-    public VisitStatus Status { get; set; } = VisitStatus.Scheduled;
+    public Guid StatusId { get; set; }
 
     public Host? Host { get; set; }
+    public MdmVisitStatus? Status { get; set; }
 }

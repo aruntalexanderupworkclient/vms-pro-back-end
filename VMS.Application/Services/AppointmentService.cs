@@ -52,19 +52,13 @@ public class AppointmentService : IAppointmentService
         {
             return await uow.ExecuteTransactionAsync(async () =>
             {
-                try
-                {
-                    var entity = _mapper.Map<Appointment>(dto);
-                    var created = await uow.Appointments.AddAsync(entity);
-                    await uow.SaveChangesAsync();
-                    return _mapper.Map<AppointmentDto>(created);
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception (you can use a logging framework like Serilog, NLog, etc.)
-                    Console.Error.WriteLine($"Error creating appointment: {ex.Message}");
-                    throw; // Rethrow to ensure transaction is rolled back
-                }
+                var entity = _mapper.Map<Appointment>(dto);
+                // Set default status: Scheduled
+                var defaultStatus = (await uow.MdmVisitStatuses.FindAsync(s => s.Code == MdmCodes.VisitStatus.Scheduled)).First();
+                entity.StatusId = defaultStatus.Id;
+                var created = await uow.Appointments.AddAsync(entity);
+                await uow.SaveChangesAsync();
+                return _mapper.Map<AppointmentDto>(created);
             });
         }
     }
@@ -79,6 +73,12 @@ public class AppointmentService : IAppointmentService
                 if (existing == null) return null;
 
                 _mapper.Map(dto, existing);
+                // Resolve status code → MDM ID
+                if (!string.IsNullOrEmpty(dto.Status))
+                {
+                    var status = (await uow.MdmVisitStatuses.FindAsync(s => s.Code == dto.Status)).FirstOrDefault();
+                    if (status != null) existing.StatusId = status.Id;
+                }
                 var updated = await uow.Appointments.UpdateAsync(existing);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<AppointmentDto>(updated);

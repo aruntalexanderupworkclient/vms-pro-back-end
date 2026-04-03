@@ -12,6 +12,7 @@ public class GetAllUsersSpecification : Specification<User>
     {
         Includes.Add("Role");
         Includes.Add("Organisation");
+        Includes.Add("Status");
         OrderByDescending = u => u.CreatedAt;
     }
 }
@@ -25,6 +26,7 @@ public class GetUsersPagedSpecification : Specification<User>
     {
         Includes.Add("Role");
         Includes.Add("Organisation");
+        Includes.Add("Status");
 
         if (!string.IsNullOrEmpty(search))
             Criteria = u => u.FullName.Contains(search) || u.Email.Contains(search);
@@ -45,6 +47,7 @@ public class GetUserByIdSpecification : Specification<User>
     {
         Includes.Add("Role");
         Includes.Add("Organisation");
+        Includes.Add("Status");
         Criteria = u => u.Id == id;
     }
 }
@@ -58,7 +61,7 @@ public class FindUserSpecification : Specification<User>
     {
         Includes.Add("Role");
         Includes.Add("Organisation");
+        Includes.Add("Status");
         Criteria = u => u.Email.ToLower() == email.ToLower();
     }
 }
-

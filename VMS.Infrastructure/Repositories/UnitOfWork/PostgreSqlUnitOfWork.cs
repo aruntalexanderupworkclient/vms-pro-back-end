@@ -22,6 +22,10 @@ public class PostgreSqlUnitOfWork : IUnitOfWork
     private readonly Lazy<IRepository<Appointment>> _appointmentRepository;
     private readonly Lazy<IRepository<Employee>> _employeeRepository;
     private readonly Lazy<IRepository<Organisation>> _organisationRepository;
+    private readonly Lazy<IRepository<MdmVisitStatus>> _mdmVisitStatusRepository;
+    private readonly Lazy<IRepository<MdmUserStatus>> _mdmUserStatusRepository;
+    private readonly Lazy<IRepository<MdmTokenType>> _mdmTokenTypeRepository;
+    private readonly Lazy<IRepository<MdmOrganisationType>> _mdmOrganisationTypeRepository;
 
     private bool _disposed = false;
 
@@ -39,6 +43,10 @@ public class PostgreSqlUnitOfWork : IUnitOfWork
         _appointmentRepository = new Lazy<IRepository<Appointment>>(() => new PostgreSqlRepository<Appointment>(_context, currentUserId));
         _employeeRepository = new Lazy<IRepository<Employee>>(() => new PostgreSqlRepository<Employee>(_context, currentUserId));
         _organisationRepository = new Lazy<IRepository<Organisation>>(() => new PostgreSqlRepository<Organisation>(_context, currentUserId));
+        _mdmVisitStatusRepository = new Lazy<IRepository<MdmVisitStatus>>(() => new PostgreSqlRepository<MdmVisitStatus>(_context, currentUserId));
+        _mdmUserStatusRepository = new Lazy<IRepository<MdmUserStatus>>(() => new PostgreSqlRepository<MdmUserStatus>(_context, currentUserId));
+        _mdmTokenTypeRepository = new Lazy<IRepository<MdmTokenType>>(() => new PostgreSqlRepository<MdmTokenType>(_context, currentUserId));
+        _mdmOrganisationTypeRepository = new Lazy<IRepository<MdmOrganisationType>>(() => new PostgreSqlRepository<MdmOrganisationType>(_context, currentUserId));
     }
 
     // Repository properties
@@ -51,6 +59,10 @@ public class PostgreSqlUnitOfWork : IUnitOfWork
     public IRepository<Appointment> Appointments => _appointmentRepository.Value;
     public IRepository<Employee> Employees => _employeeRepository.Value;
     public IRepository<Organisation> Organisations => _organisationRepository.Value;
+    public IRepository<MdmVisitStatus> MdmVisitStatuses => _mdmVisitStatusRepository.Value;
+    public IRepository<MdmUserStatus> MdmUserStatuses => _mdmUserStatusRepository.Value;
+    public IRepository<MdmTokenType> MdmTokenTypes => _mdmTokenTypeRepository.Value;
+    public IRepository<MdmOrganisationType> MdmOrganisationTypes => _mdmOrganisationTypeRepository.Value;
 
     /// <summary>
     /// Check if a transaction is currently active

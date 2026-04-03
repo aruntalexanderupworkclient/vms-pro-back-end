@@ -23,6 +23,7 @@ public class GetRolesPagedSpecification : Specification<Role>
     public GetRolesPagedSpecification(int page, int pageSize, string? search = null)
     {
         Includes.Add("Permissions");
+        Includes.Add("Users");
 
         if (!string.IsNullOrEmpty(search))
             Criteria = r => r.Name.Contains(search) || r.Description.Contains(search);

@@ -1,5 +1,3 @@
-using VMS.Domain.Enums;
-
 namespace VMS.Domain.Entities;
 
 public class Visitor : BaseEntity
@@ -13,10 +11,12 @@ public class Visitor : BaseEntity
     public string Purpose { get; set; } = string.Empty;
     public DateTime? CheckInTime { get; set; }
     public DateTime? CheckOutTime { get; set; }
-    public VisitStatus Status { get; set; } = VisitStatus.Scheduled;
+    public Guid StatusId { get; set; }
     public string ExpectedDuration { get; set; } = string.Empty;
-    public string OrgType { get; set; } = string.Empty;
+    public Guid? OrgTypeId { get; set; }
 
     public Host? Host { get; set; }
+    public MdmVisitStatus? Status { get; set; }
+    public MdmOrganisationType? OrgType { get; set; }
     public ICollection<VisitorToken> Tokens { get; set; } = new List<VisitorToken>();
 }

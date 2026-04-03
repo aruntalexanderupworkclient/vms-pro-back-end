@@ -12,9 +12,9 @@ public class VisitorTokenConfiguration : IEntityTypeConfiguration<VisitorToken>
         builder.HasKey(t => t.Id);
         builder.Property(t => t.TokenNumber).IsRequired().HasMaxLength(50);
         builder.HasIndex(t => t.TokenNumber).IsUnique();
-        builder.Property(t => t.TokenType).HasConversion<string>().HasMaxLength(20);
-        builder.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(t => t.Visitor).WithMany(v => v.Tokens).HasForeignKey(t => t.VisitorId);
+        builder.HasOne(t => t.TokenType).WithMany().HasForeignKey(t => t.TokenTypeId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(t => t.Status).WithMany().HasForeignKey(t => t.StatusId).OnDelete(DeleteBehavior.Restrict);
         
         // 🆕 AUDIT TRACKING FOREIGN KEYS
         builder.HasOne<User>()

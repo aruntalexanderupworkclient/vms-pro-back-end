@@ -53,6 +53,13 @@ public class VisitorService : IVisitorService
             return await uow.ExecuteTransactionAsync(async () =>
             {
                 var entity = _mapper.Map<Visitor>(dto);
+                var defaultStatus = (await uow.MdmVisitStatuses.FindAsync(s => s.Code == MdmCodes.VisitStatus.Scheduled)).First();
+                entity.StatusId = defaultStatus.Id;
+                if (!string.IsNullOrEmpty(dto.OrgType))
+                {
+                    var orgType = (await uow.MdmOrganisationTypes.FindAsync(o => o.Code == dto.OrgType)).FirstOrDefault();
+                    if (orgType != null) entity.OrgTypeId = orgType.Id;
+                }
                 var created = await uow.Visitors.AddAsync(entity);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<VisitorDto>(created);
@@ -70,6 +77,16 @@ public class VisitorService : IVisitorService
                 if (existing == null) return null;
 
                 _mapper.Map(dto, existing);
+                if (!string.IsNullOrEmpty(dto.Status))
+                {
+                    var status = (await uow.MdmVisitStatuses.FindAsync(s => s.Code == dto.Status)).FirstOrDefault();
+                    if (status != null) existing.StatusId = status.Id;
+                }
+                if (!string.IsNullOrEmpty(dto.OrgType))
+                {
+                    var orgType = (await uow.MdmOrganisationTypes.FindAsync(o => o.Code == dto.OrgType)).FirstOrDefault();
+                    if (orgType != null) existing.OrgTypeId = orgType.Id;
+                }
                 var updated = await uow.Visitors.UpdateAsync(existing);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<VisitorDto>(updated);

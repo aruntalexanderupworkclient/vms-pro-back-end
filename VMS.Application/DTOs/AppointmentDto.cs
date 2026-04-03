@@ -1,5 +1,3 @@
-using VMS.Domain.Enums;
-
 namespace VMS.Application.DTOs;
 
 public class AppointmentDto
@@ -13,8 +11,7 @@ public class AppointmentDto
     public string Purpose { get; set; } = string.Empty;
     public string? Notes { get; set; }
     public string Status { get; set; } = string.Empty;
-    // Enum metadata for frontend MDM display
-    public int StatusId { get; set; }
+    public Guid StatusId { get; set; }
     public string StatusLabel { get; set; } = string.Empty;
 }
 

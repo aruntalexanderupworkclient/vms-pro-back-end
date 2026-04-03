@@ -14,8 +14,8 @@ public class HostConfiguration : IEntityTypeConfiguration<Host>
         builder.Property(h => h.Department).HasMaxLength(100);
         builder.Property(h => h.ContactNumber).HasMaxLength(20);
         builder.Property(h => h.Email).HasMaxLength(256);
-        builder.Property(h => h.OrganisationType).HasConversion<string>().HasMaxLength(20);
-        builder.Property(h => h.Status).HasConversion<string>().HasMaxLength(20);
+        builder.HasOne(h => h.OrganisationType).WithMany().HasForeignKey(h => h.OrganisationTypeId).OnDelete(DeleteBehavior.Restrict);
+        builder.Property(h => h.IsActive).HasDefaultValue(true);
         
         // 🆕 AUDIT TRACKING FOREIGN KEYS
         builder.HasOne<User>()

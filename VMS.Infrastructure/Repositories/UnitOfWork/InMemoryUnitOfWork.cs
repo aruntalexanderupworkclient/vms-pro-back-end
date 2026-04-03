@@ -21,6 +21,10 @@ public class InMemoryUnitOfWork : IUnitOfWork
     private readonly Lazy<IRepository<Appointment>> _appointmentRepository;
     private readonly Lazy<IRepository<Employee>> _employeeRepository;
     private readonly Lazy<IRepository<Organisation>> _organisationRepository;
+    private readonly Lazy<IRepository<MdmVisitStatus>> _mdmVisitStatusRepository;
+    private readonly Lazy<IRepository<MdmUserStatus>> _mdmUserStatusRepository;
+    private readonly Lazy<IRepository<MdmTokenType>> _mdmTokenTypeRepository;
+    private readonly Lazy<IRepository<MdmOrganisationType>> _mdmOrganisationTypeRepository;
 
     private bool _transactionActive = false;
     private readonly Dictionary<string, object> _changeSet = new();
@@ -40,6 +44,10 @@ public class InMemoryUnitOfWork : IUnitOfWork
         _appointmentRepository = new Lazy<IRepository<Appointment>>(() => new InMemoryRepository<Appointment>(_store));
         _employeeRepository = new Lazy<IRepository<Employee>>(() => new InMemoryRepository<Employee>(_store));
         _organisationRepository = new Lazy<IRepository<Organisation>>(() => new InMemoryRepository<Organisation>(_store));
+        _mdmVisitStatusRepository = new Lazy<IRepository<MdmVisitStatus>>(() => new InMemoryRepository<MdmVisitStatus>(_store));
+        _mdmUserStatusRepository = new Lazy<IRepository<MdmUserStatus>>(() => new InMemoryRepository<MdmUserStatus>(_store));
+        _mdmTokenTypeRepository = new Lazy<IRepository<MdmTokenType>>(() => new InMemoryRepository<MdmTokenType>(_store));
+        _mdmOrganisationTypeRepository = new Lazy<IRepository<MdmOrganisationType>>(() => new InMemoryRepository<MdmOrganisationType>(_store));
     }
 
     // Repository properties
@@ -52,6 +60,10 @@ public class InMemoryUnitOfWork : IUnitOfWork
     public IRepository<Appointment> Appointments => _appointmentRepository.Value;
     public IRepository<Employee> Employees => _employeeRepository.Value;
     public IRepository<Organisation> Organisations => _organisationRepository.Value;
+    public IRepository<MdmVisitStatus> MdmVisitStatuses => _mdmVisitStatusRepository.Value;
+    public IRepository<MdmUserStatus> MdmUserStatuses => _mdmUserStatusRepository.Value;
+    public IRepository<MdmTokenType> MdmTokenTypes => _mdmTokenTypeRepository.Value;
+    public IRepository<MdmOrganisationType> MdmOrganisationTypes => _mdmOrganisationTypeRepository.Value;
 
     /// <summary>
     /// Check if a transaction is currently active

@@ -16,8 +16,9 @@ public class VisitorConfiguration : IEntityTypeConfiguration<Visitor>
         builder.Property(v => v.Phone).HasMaxLength(20);
         builder.Property(v => v.PhotoUrl).HasMaxLength(500);
         builder.Property(v => v.Purpose).HasMaxLength(500);
-        builder.Property(v => v.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(v => v.Host).WithMany(h => h.Visitors).HasForeignKey(v => v.HostId);
+        builder.HasOne(v => v.Status).WithMany().HasForeignKey(v => v.StatusId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(v => v.OrgType).WithMany().HasForeignKey(v => v.OrgTypeId).OnDelete(DeleteBehavior.Restrict).IsRequired(false);
         
         // 🆕 AUDIT TRACKING FOREIGN KEYS
         builder.HasOne<User>()

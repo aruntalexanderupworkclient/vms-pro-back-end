@@ -72,6 +72,13 @@ public class UserService : IUserService
                 {
                     var entity = _mapper.Map<User>(dto);
                     entity.PasswordHash = BCryptHash(dto.Password);
+                    
+                    if (dto.StatusId != Guid.Empty)
+                    {
+                        var status = (await uow.MdmUserStatuses.FindAsync(s => s.Id == dto.StatusId)).FirstOrDefault();
+                        if (status != null) entity.StatusId = status.Id;
+                    }
+                    
                     var created = await uow.Users.AddAsync(entity);
                     await uow.SaveChangesAsync();
                     return _mapper.Map<UserDto>(created);
@@ -94,6 +101,11 @@ public class UserService : IUserService
                 if (existing == null) return null;
 
                 _mapper.Map(dto, existing);
+                if (dto.StatusId != Guid.Empty)
+                {
+                    var status = (await uow.MdmUserStatuses.FindAsync(s => s.Id == dto.StatusId)).FirstOrDefault();
+                    if (status != null) existing.StatusId = status.Id;
+                }
                 var updated = await uow.Users.UpdateAsync(existing);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<UserDto>(updated);

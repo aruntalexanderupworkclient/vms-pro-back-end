@@ -13,8 +13,8 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
         builder.Property(a => a.VisitorName).IsRequired().HasMaxLength(200);
         builder.Property(a => a.Purpose).HasMaxLength(500);
         builder.Property(a => a.Notes).HasMaxLength(1000);
-        builder.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(a => a.Host).WithMany(h => h.Appointments).HasForeignKey(a => a.HostId);
+        builder.HasOne(a => a.Status).WithMany().HasForeignKey(a => a.StatusId).OnDelete(DeleteBehavior.Restrict);
         
         // 🆕 AUDIT TRACKING FOREIGN KEYS
         builder.HasOne<User>()

@@ -15,6 +15,12 @@ public class InMemoryDataStore
     public ConcurrentDictionary<Guid, Host> Hosts { get; } = new();
     public ConcurrentDictionary<Guid, Organisation> Organisations { get; } = new();
 
+    // MDM Collections
+    public ConcurrentDictionary<Guid, MdmVisitStatus> MdmVisitStatuses { get; } = new();
+    public ConcurrentDictionary<Guid, MdmUserStatus> MdmUserStatuses { get; } = new();
+    public ConcurrentDictionary<Guid, MdmTokenType> MdmTokenTypes { get; } = new();
+    public ConcurrentDictionary<Guid, MdmOrganisationType> MdmOrganisationTypes { get; } = new();
+
     public InMemoryDataStore()
     {
         SeedData.Seed(this);
@@ -33,6 +39,10 @@ public class InMemoryDataStore
             nameof(Employee) => (ConcurrentDictionary<Guid, T>)(object)Employees,
             nameof(Host) => (ConcurrentDictionary<Guid, T>)(object)Hosts,
             nameof(Organisation) => (ConcurrentDictionary<Guid, T>)(object)Organisations,
+            nameof(MdmVisitStatus) => (ConcurrentDictionary<Guid, T>)(object)MdmVisitStatuses,
+            nameof(MdmUserStatus) => (ConcurrentDictionary<Guid, T>)(object)MdmUserStatuses,
+            nameof(MdmTokenType) => (ConcurrentDictionary<Guid, T>)(object)MdmTokenTypes,
+            nameof(MdmOrganisationType) => (ConcurrentDictionary<Guid, T>)(object)MdmOrganisationTypes,
             _ => throw new InvalidOperationException($"No collection registered for type {typeof(T).Name}")
         };
     }

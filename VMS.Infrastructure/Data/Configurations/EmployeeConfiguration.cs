@@ -17,7 +17,7 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         builder.HasIndex(e => e.EmployeeCode).IsUnique();
         builder.Property(e => e.Phone).HasMaxLength(20);
         builder.Property(e => e.Email).HasMaxLength(256);
-        builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(20);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
         
         // 🆕 AUDIT TRACKING FOREIGN KEYS
         builder.HasOne<User>()

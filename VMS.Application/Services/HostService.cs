@@ -48,12 +48,16 @@ public class HostService : IHostService
 
     public async Task<HostDto> CreateAsync(CreateHostDto dto)
     {
-        var entity1 = _mapper.Map<Host>(dto);
         using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
             return await uow.ExecuteTransactionAsync(async () =>
             {
                 var entity = _mapper.Map<Host>(dto);
+                if (!string.IsNullOrEmpty(dto.OrgType))
+                {
+                    var orgType = (await uow.MdmOrganisationTypes.FindAsync(o => o.Code == dto.OrgType)).FirstOrDefault();
+                    if (orgType != null) entity.OrganisationTypeId = orgType.Id;
+                }
                 var created = await uow.Hosts.AddAsync(entity);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<HostDto>(created);
@@ -71,6 +75,11 @@ public class HostService : IHostService
                 if (existing == null) return null;
 
                 _mapper.Map(dto, existing);
+                if (!string.IsNullOrEmpty(dto.OrgType))
+                {
+                    var orgType = (await uow.MdmOrganisationTypes.FindAsync(o => o.Code == dto.OrgType)).FirstOrDefault();
+                    if (orgType != null) existing.OrganisationTypeId = orgType.Id;
+                }
                 var updated = await uow.Hosts.UpdateAsync(existing);
                 await uow.SaveChangesAsync();
                 return _mapper.Map<HostDto>(updated);

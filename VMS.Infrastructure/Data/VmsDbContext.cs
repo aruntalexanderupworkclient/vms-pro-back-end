@@ -17,6 +17,12 @@ public class VmsDbContext : DbContext
     public DbSet<Host> Hosts => Set<Host>();
     public DbSet<Organisation> Organisations => Set<Organisation>();
 
+    // MDM Tables
+    public DbSet<MdmVisitStatus> MdmVisitStatuses => Set<MdmVisitStatus>();
+    public DbSet<MdmUserStatus> MdmUserStatuses => Set<MdmUserStatus>();
+    public DbSet<MdmTokenType> MdmTokenTypes => Set<MdmTokenType>();
+    public DbSet<MdmOrganisationType> MdmOrganisationTypes => Set<MdmOrganisationType>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

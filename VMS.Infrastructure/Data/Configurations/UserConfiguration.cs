@@ -15,17 +15,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.Email).IsUnique();
         builder.Property(u => u.Phone).HasMaxLength(20);
         builder.Property(u => u.PasswordHash).IsRequired();
-        builder.Property(u => u.Status).HasConversion<string>().HasMaxLength(20);
         builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId);
+        builder.HasOne(u => u.Status).WithMany().HasForeignKey(u => u.StatusId).OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(u => u.Organisation).WithMany(o => o.Users).HasForeignKey(u => u.OrganisationId);
         
         // 🆕 AUDIT TRACKING FOREIGN KEYS
-        // CreatedBy: Nullable FK - allows bootstrap without error, but enforces FK when populated
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(u => u.CreatedBy)
             .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired(false);  // Nullable FK
+            .IsRequired(false);
         
         builder.HasOne<User>()
             .WithMany()
