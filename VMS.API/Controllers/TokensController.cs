@@ -61,4 +61,28 @@ public class TokensController : ControllerBase
             return NotFound(ApiResponse<object>.FailResponse("Token not found."));
         return Ok(ApiResponse<object>.SuccessResponse(null!, "Token deleted."));
     }
+    
+    
+    [HttpGet("Scan")]
+    [AllowAnonymous]
+    public async Task<ActionResult<ApiResponse<ScanTokenDto>>> Scan([FromQuery] Guid id)
+    {
+        var visitorToken = await _service.GetByIdAsync(id);
+
+        if (visitorToken == null)
+            return NotFound("Invalid token");
+
+        if (visitorToken.Expiry < DateTime.UtcNow)
+            return BadRequest("Token expired");
+
+        // Optional: check status
+        // Optional: mark as used
+
+        return Ok(new ScanTokenDto
+        {
+            Name = visitorToken.VisitorName,
+            Token = visitorToken.TokenNo,
+            Status = "Valid"
+        });
+    }
 }

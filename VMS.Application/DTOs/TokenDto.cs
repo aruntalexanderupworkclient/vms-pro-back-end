@@ -34,3 +34,10 @@ public class UpdateTokenDto
     public DateTime Expiry { get; set; }
     public string Status { get; set; } = string.Empty;
 }
+
+public class ScanTokenDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string Token { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+}
