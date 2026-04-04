@@ -210,3 +210,23 @@ public class UpdateMdmDtoValidator : AbstractValidator<UpdateMdmDto>
     }
 }
 
+public class CreateOrganisationDtoValidator : AbstractValidator<CreateOrganisationDto>
+{
+    public CreateOrganisationDtoValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Address).NotEmpty().MaximumLength(500);
+        RuleFor(x => x.Type).NotEmpty();
+    }
+}
+
+public class UpdateOrganisationDtoValidator : AbstractValidator<UpdateOrganisationDto>
+{
+    public UpdateOrganisationDtoValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Address).NotEmpty().MaximumLength(500);
+        RuleFor(x => x.Type).NotEmpty();
+    }
+}
+

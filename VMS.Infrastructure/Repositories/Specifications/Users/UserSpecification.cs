@@ -57,11 +57,12 @@ public class GetUserByIdSpecification : Specification<User>
 /// </summary>
 public class FindUserSpecification : Specification<User>
 {
-    public FindUserSpecification(string email)
+    public FindUserSpecification(string email,Guid activeStatusId)
     {
         Includes.Add("Role");
         Includes.Add("Organisation");
         Includes.Add("Status");
         Criteria = u => u.Email.ToLower() == email.ToLower();
+        Criteria = u => u.StatusId == activeStatusId;
     }
 }

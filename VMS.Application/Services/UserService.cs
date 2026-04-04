@@ -54,7 +54,9 @@ public class UserService : IUserService
     {
         using (var uow = _unitOfWorkFactory.CreateUnitOfWork())
         {
-            var spec = new FindUserSpecification(email);
+            Guid activeStatusId = (await uow.MdmUserStatuses.FindAsync(s => s.Code == "Active")).Select(x=>x.Id).FirstOrDefault();
+
+            var spec = new FindUserSpecification(email,activeStatusId);
             var users = await uow.Users.GetBySpecificationAsync(spec);
             var user = users.FirstOrDefault();
             return user == null ? null : _mapper.Map<UserDto>(user);
